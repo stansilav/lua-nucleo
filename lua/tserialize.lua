@@ -1,5 +1,4 @@
- local used = table
-local names = table
+used = table
 num = 1;
 
 tserialize  = function(...)
