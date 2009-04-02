@@ -1,39 +1,80 @@
-local serial = function(...)
- local n = select("#", ...)
- ans = "";
+ local used = table
+local names = table
+num = 1;
 
- for i = 1, n do
-  b = 0;
-  if (type (select(i, ...)) == "number") then
-   ans = ans..string.format("%d", select(i, ...));
-   b = 1;
-  end;
+tserialize  = function(...)
+  local n = select("#", ...)
+  local ans = "";
+  for i = 1, n do
+    local arg = select(i, ...)
+    local type_arg = type (arg)
 
-  if (type (select(i, ...)) == "boolean") then
-   if (select(i, ...) == true) then
-    ans = ans.."true";
-   else
-    ans = ans.."false";
-   end;
-   b = 1;
-  end;
+    if arg == nil
+	then
+      ans = ans.."nil"
 
-  if (type (select(i, ...)) == "string") then
-   ans = ans.."\"";
-   ans = ans..select(i, ...);
-   ans = ans.."\"";
-   b = 1;
-  end;
+	elseif type_arg == "number" or
+	        type_arg == "boolean" or
+			type_arg == "nil"
+    then
+  	  ans = ans..tostring(arg)
 
-  --if (type (select(i, ...)) == "table") then
-  -- b = 1;
-  --end;
+	elseif type_arg == "string"
+	then
+      ans = ans..string.format("%q", arg)
 
-  if (i ~= n and b == 1) then
-   ans = ans..",";
+	elseif type_arg == "table"
+	then
+      if (type (used[arg]) ~= "string") and (arg ~= true)
+	  then
+        used[arg] = "arg"..tostring (num)
+        num = num+1;
+        ans = ans.."{"
+        local flag = false;
+        local sz = 0;
+
+		for key, value in ipairs(arg) do
+          if type(value) ~= "function"
+		  then
+            if flag
+			then
+              ans = ans..", "
+            end
+            ans = ans..tserialize (value)
+            flag = true;
+            sz = key;
+	      end
+        end
+
+        for key, value in pairs(arg) do
+	      if type(value) ~= "function" then
+            if (type (key) ~= "number") or (key > sz) then
+              if flag then
+                ans = ans..", "
+              end
+              ans = ans.."["..tserialize(key).."]".."="..tserialize(value)
+              flag = true;
+            end
+          end
+        end
+		used[arg] = nil;
+		ans = ans.."}"
+
+	  else
+        ans = ans..used[arg]
+      end
+    end
+
+	if i ~= n then
+      ans = ans..", "
+	end
   end
- end
- return ans;
+
+  return ans
 end
-print(serial (true, 1, 2, 3, false, "sdsdsd"));
- 
+
+local g = {1, 2, 3}
+local t = {1, 2, g};
+t[4] = t;
+
+print(tserialize (t, g))
