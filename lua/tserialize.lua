@@ -9,71 +9,77 @@ tserialize  = function(...)
     local type_arg = type (arg)
 
     if arg == nil
-	then
+    then
       ans = ans.."nil"
 
-	elseif type_arg == "number" or
-	        type_arg == "boolean" or
-			type_arg == "nil"
+    elseif type_arg == "number" or
+           type_arg == "boolean" or
+           type_arg == "nil"
     then
-  	  ans = ans..tostring(arg)
+      ans = ans..tostring(arg)
 
-	elseif type_arg == "string"
-	then
+    elseif type_arg == "string"
+    then
       ans = ans..string.format("%q", arg)
 
-	elseif type_arg == "table"
-	then
+    elseif type_arg == "table"
+    then
       if (type (used[arg]) ~= "string") and (arg ~= true)
-	  then
+      then
         used[arg] = "arg"..tostring (num)
         num = num+1;
         ans = ans.."{"
         local flag = false;
         local sz = 0;
 
-		for key, value in ipairs(arg) do
+        for key, value in ipairs(arg) do
           if type(value) ~= "function"
-		  then
+          then
             if flag
-			then
-              ans = ans..", "
+            then
+             ans = ans..", "
             end
             ans = ans..tserialize (value)
             flag = true;
             sz = key;
-	      end
+          end
         end
 
         for key, value in pairs(arg) do
-	      if type(value) ~= "function" then
-            if (type (key) ~= "number") or (key > sz) then
-              if flag then
+          if type(value) ~= "function"
+          then
+            if (type (key) ~= "number") or (key > sz)
+            then
+              if flag
+              then
                 ans = ans..", "
               end
-              ans = ans.."["..tserialize(key).."]".."="..tserialize(value)
-              flag = true;
+            ans = ans.."["..tserialize(key).."]".."="..tserialize(value)
+            flag = true;
             end
           end
         end
-		used[arg] = nil;
-		ans = ans.."}"
 
-	  else
+        used[arg] = nil;
+        ans = ans.."}"
+
+        else
         ans = ans..used[arg]
       end
     end
 
-	if i ~= n then
+    if i ~= n
+    then
       ans = ans..", "
-	end
+    end
   end
 
   return ans
 end
 
 local g = {1, 2, 3}
-local t = {1, 2, g}
-t[4] = t
+local t = {1, 2, 3};
+t[4] = t;
+g[4] = g;
 
 print(tserialize (t, g))
