@@ -73,7 +73,7 @@ tserialize  = function(...)
 end
 
 local g = {1, 2, 3}
-local t = {1, 2, g};
-t[4] = t;
+local t = {1, 2, g}
+t[4] = t
 
 print(tserialize (t, g))
